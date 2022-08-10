@@ -14,7 +14,10 @@ def record(url):
 
     with mic as source:
         r.adjust_for_ambient_noise(source) #雑音対策
-        audio = r.listen(source)
+        try:
+            audio = r.listen(source,timeout=20)
+        except sr.WaitTimeoutError:
+            return False
     print ("Now to recognize it...")
 
     try:

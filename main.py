@@ -14,7 +14,7 @@ stop_time=60
 while 1:
     bell(url)#インターホンの音を検知
     recognizer = speech_recognition.Recognizer()
-    base_time = time.time() # 一定時間何も怒らなかったら終了するための変数
+    base_time = time.time() # 一定時間何も起こらなかったら終了するための変数
     with speech_recognition.Microphone() as micin: # Microphone() の第一引数で、使用するマイクを指定できるらしいです
         recognizer.adjust_for_ambient_noise(micin) # ノイズ処理
         while 1:

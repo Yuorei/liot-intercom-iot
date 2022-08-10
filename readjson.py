@@ -10,5 +10,5 @@ def readJson(url):
         txt=jsonData["text"]
         print("送られてきた返信内容　",txt)
         return txt
-    elif jsonData['exist']==False:
+    else:
         return False
