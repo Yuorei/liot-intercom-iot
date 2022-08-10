@@ -5,7 +5,7 @@ from readtext import readText
 import time
 from datetime import datetime
 url="https://aizuhack-liot-intercom-ifcy7nlzda-an.a.run.app"
-stop_time=10
+stop_time=60
 while 1:
     base=time.time()
 
