@@ -24,12 +24,13 @@ while 1:
                 # 音声の録音(無音の場合はexceptへ)
                 #     timeout で無音の時間を何秒まで許容するか
                 #     phrase_time_limit で訪問者の発言を何秒まで許容するか指定できる
+                readText("住人に伝えたいことをおっしゃってください")
                 print('音声録音中')
                 audio = recognizer.listen(micin, timeout=1, phrase_time_limit=8)
                 # 音声からテキストへ変換(失敗したらexceptへ)
                 print('音声をテキストへ変換中')
                 voice_text = recognizer.recognize_google(audio, language='ja-JP')
-                print('変換成功')
+                print('変換成功: ', voice_text)
                 # サーバーへ送信
                 r=requests.post(
                     url+"/intercom/text",
