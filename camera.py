@@ -11,7 +11,7 @@ def cap(url):
     time.sleep(2)
     ret,frame=cap.read()
     print("写真が撮れたかどうか",ret)
-    if not ret:
+    if ret:
         cv2.imwrite("visiter.jpg", frame)
         with open("./visiter.jpg", "rb") as f:
             img = f.read()
