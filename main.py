@@ -4,23 +4,46 @@ from voice_record import record
 from readtext import readText
 import time
 from datetime import datetime
+import speech_recognition
+import requests
+
 url="https://aizuhack-liot-intercom-ifcy7nlzda-an.a.run.app"
 stop_time=60
+
+# === メインループ(一生ループし続ける) ===
 while 1:
-    base=time.time()
-    print("チャイム待機")
     bell(url)#インターホンの音を検知
-    while time.time()-base<stop_time:
-        print(time.time()-base)
-        readText("住人に伝えたいことをおっしゃってください")
-        recode_time=record(url)#訪問者の音声を録音してサーバーに送信
-        
-        if recode_time!=False:
-            base=recode_time
-        
-        txt=readJson(url)#送られてきたJSONのテキストを戻り値として受け取る
-        
-        if txt != False :
-            readText(txt)#音声の読み上げ
-            time.sleep(5)
-            base=time.time()
+    recognizer = speech_recognition.Recognizer()
+    base_time = time.time() # 一定時間何も起こらなかったら終了するための変数
+    with speech_recognition.Microphone() as micin: # Microphone() の第一引数で、使用するマイクを指定できるらしいです
+        recognizer.adjust_for_ambient_noise(micin) # ノイズ処理
+        while 1:
+            try:
+                # 音声の録音(無音の場合はexceptへ)
+                #     timeout で無音の時間を何秒まで許容するか
+                #     phrase_time_limit で訪問者の発言を何秒まで許容するか指定できる
+                audio = recognizer.listen(micin, timeout=1, phrase_time_limit=8)
+                # 音声からテキストへ変換(失敗したらexceptへ)
+                voice_text = recognizer.recognize_google(audio, language='ja-JP')
+                # サーバーへ送信
+                r=requests.post(
+                    url+"/intercom/text",
+                    json={
+                        "id": "liot",
+                        "datetime": datetime.utcnow().isoformat(),
+                        "text": voice_text
+                    }
+                )
+                # 終了までの猶予時間を更新
+                base_time = time.time()
+            except (speech_recognition.WaitTimeoutError, speech_recognition.UnknownValueError): # いずれかの例外が発生した場合
+                text = readJson(url) # サーバーからのメッセージを取得(なければFalseが入る)
+                if text != False:
+                    # メッセージがあった場合はその内容を読み上げる
+                    readText(text)
+                    # 終了までの猶予時間を更新
+                    base_time = time.time()
+                # 最後の猶予時間更新から stop_time 秒以上経っていたらルーブを抜ける
+                if time.time() - base_time > stop_time:
+                    break
+                continue
