@@ -4,29 +4,29 @@ import pyaudio
 import wave
 import os
 import time
+import pydub
+import struct
 
 def readText(txt):
     tts =gTTS(text=txt,lang="ja")
-
-    tts.save(r'communication.wav')
-    storefile ="communication.wav"
+    tempFile = 'communication.mp3'
+    tts.save(tempFile)
+    audio: pydub.AudioSegment = pydub.AudioSegment.from_mp3(tempFile)
     
     pa = pyaudio.PyAudio()
-    stream = pa.open(44100, 2, pyaudio.paInt16, output=True, output_device_index=1)
-    wav = wave.open(storefile)
+    stream = pa.open(audio.frame_rate, audio.channles, pyaudio.get_format_from_width(audio.sample_width), output=True, output_device_index=1)
+
+    samples = audio.get_array_of_samples()
+    sampleBytes = struct.pack(samples.typecode * len(samples), *samples)
 
     # 音声の再生が終了するまで待つ
     print('メッセージを読み上げ中: ', txt)
-    while 1:
-        data = wav.readframes(wav.getnframes())
-        if not data:
-            break
-        stream.write()
+    stream.write(sampleBytes)
+    
     stream.close()
-    wav.close()
     pa.terminate()
     print('メッセージの読み上げ完了')
-    os.remove(storefile)
+    os.remove(tempFile)
 
 if __name__ =="__main__":
     readText("使うたに")
