@@ -13,7 +13,7 @@ def readText(txt):
     audio: pydub.AudioSegment = pydub.AudioSegment.from_mp3(tempFile)
     
     pa = pyaudio.PyAudio()
-    stream = pa.open(audio.frame_rate, audio.channels, pyaudio.get_format_from_width(audio.sample_width), output=True, output_device_index=1)
+    stream = pa.open(audio.frame_rate, audio.channels, pyaudio.get_format_from_width(audio.sample_width), output=True)
 
     # 音声の再生が終了するまで待つ
     print('メッセージを読み上げ中: ', txt)
