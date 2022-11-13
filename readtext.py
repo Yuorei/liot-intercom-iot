@@ -5,7 +5,6 @@ import wave
 import os
 import time
 import pydub
-import struct
 
 def readText(txt):
     tts =gTTS(text=txt,lang="ja")
@@ -16,12 +15,9 @@ def readText(txt):
     pa = pyaudio.PyAudio()
     stream = pa.open(audio.frame_rate, audio.channels, pyaudio.get_format_from_width(audio.sample_width), output=True, output_device_index=1)
 
-    samples = audio.get_array_of_samples()
-    sampleBytes = struct.pack(samples.typecode * len(samples), *samples)
-
     # 音声の再生が終了するまで待つ
     print('メッセージを読み上げ中: ', txt)
-    stream.write(sampleBytes)
+    stream.write(audio.raw_data)
     
     stream.close()
     pa.terminate()
